@@ -1,0 +1,8 @@
+lr: [0.01,0.001,0.0001,0.00001]
+nb_epoch: [20]
+batch_size: [128,256]
+cartridges_l1: [0.0001,0.00015,0.0002]
+cartridges_nb_hidden: [16,32,64]
+joint_nb_hidden: [16,32,64]
+joint_drop_out: [0,0.01,0.02]
+    
