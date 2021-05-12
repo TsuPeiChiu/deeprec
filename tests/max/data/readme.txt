@@ -1,0 +1,3 @@
+Please find the datasets on:
+/labdata/tmp/selex_max/r0_r1_max_selex_seq_10mer_150_onestrand_relKa_train.h5
+/labdata/tmp/selex_max/r0_r1_max_selex_seq_10mer_150_onestrand_relKa_val.h5
