@@ -6,7 +6,7 @@ deeprec_run.py -c ./max/config/config.yaml -t ./max/config/tune_params.yaml -p 3
 -t: Config for hyperparameter search
 -p: Number of param sets for hyperparameter search
 -e: Number of models for ensemble learning
--q: Number of models for ensemble learning
+-q: Quantile of models selected for analysis
 -s: Seed for reproducing result
 -i: Input file from SELEX tool
 -v: Validation set size
