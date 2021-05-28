@@ -75,7 +75,7 @@ class DeepRecModel(object):
             kf = KFold(n_splits=3)
             idx_cv = 0
             for idx_train, idx_val in kf.split(self.train_x):                
-                print('tuning parameters' + str(idx_params_tune+1) + '/' + 
+                print('tuning parameters ' + str(idx_params_tune+1) + '/' + 
                       str(self.nb_params) + ':' + str(idx_cv+1) + '/3 ...')
                 
                 history = self.model.fit(self.train_x[idx_train],
