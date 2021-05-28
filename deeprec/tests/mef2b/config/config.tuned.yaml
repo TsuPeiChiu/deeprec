@@ -1,0 +1,44 @@
+batch_size: 128
+cartridges:
+  hbond_major:
+    activation: relu
+    filter_hei: 2
+    filter_len: 4
+    l1: 0.0001
+    l2: 0.0
+    nb_filter: 16
+    nb_hidden: 64
+    pool_hei: 1
+    pool_len: 1
+  hbond_minor:
+    activation: relu
+    filter_hei: 2
+    filter_len: 4
+    l1: 0.0
+    l2: 0.0
+    nb_filter: 16
+    nb_hidden: 64
+    pool_hei: 1
+    pool_len: 1
+input:
+  train: /labdata/tmp/selex_mef2b_new/r0_r1_mef2b_selex_seq_10mer_100_relKa_train.h5
+  val: /labdata/tmp/selex_mef2b_new/r0_r1_mef2b_selex_seq_10mer_100_relKa_val.h5
+#  train: ./mef2b/data/r0_r1_mef2b_selex_seq_10mer_100.onestrand.train.h5
+#  val: ./mef2b/data/r0_r1_mef2b_selex_seq_10mer_100.onestrand.val.h5
+joint:
+  activation: relu
+  drop_out: 0.01
+  l1: 0.0001
+  l2: 0.0
+  nb_hidden: 64
+loss: poisson
+nb_epoch: 10
+optimizer: adam
+optimizer_params:
+  lr: 0.0001
+output:
+  model_logos: model_logos.png
+  model_tune: model_tune.tsv
+  path: ./mef2b/output/
+target:
+  activation: sigmoid

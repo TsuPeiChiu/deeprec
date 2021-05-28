@@ -1,0 +1,42 @@
+batch_size: 256
+cartridges:
+  hbond_major:
+    activation: relu
+    filter_hei: 2
+    filter_len: 4
+    l1: 0.0001
+    l2: 0.0
+    nb_filter: 16
+    nb_hidden: 64
+    pool_hei: 1
+    pool_len: 1
+  hbond_minor:
+    activation: relu
+    filter_hei: 2
+    filter_len: 4
+    l1: 0.0001
+    l2: 0.0
+    nb_filter: 16
+    nb_hidden: 64
+    pool_hei: 1
+    pool_len: 1
+input:
+  train: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.train.h5
+  val: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.val.h5
+joint:
+  activation: relu
+  drop_out: 0.02
+  l1: 0.0
+  l2: 0.0
+  nb_hidden: 32
+loss: poisson
+nb_epoch: 100
+optimizer: adam
+optimizer_params:
+  lr: 0.001
+output:
+  model_logos: model_logos.png
+  model_tune: model_tune.tsv
+  path: ./max/output/
+target:
+  activation: sigmoid

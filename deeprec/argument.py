@@ -14,7 +14,13 @@ class ArgumentReader(object):
         p.add_argument('-q', action='store', type=float, dest='quantile', 
                         help='Number of models for ensemble learning')
         p.add_argument('-s', action='store', type=int, dest='random_state', 
-                        help='Seed for reproducing result')        
+                        help='Seed for reproducing result')
+        p.add_argument('-i', action='store', dest='input_selex', 
+                        help='Input file from SELEX tool')
+        p.add_argument('-v', action='store', type=float, dest='valid_size', 
+                        help='Validation set size')
+        p.add_argument('-d', action='store', dest='target_seq', 
+                        help='Target sequence for interpretation')        
         args = p.parse_args()         
         self.config = args.config
         self.config_tune = args.config_tune
@@ -22,3 +28,6 @@ class ArgumentReader(object):
         self.nb_models = args.nb_models
         self.quantile = args.quantile
         self.random_state = args.random_state
+        self.input_selex = args.input_selex
+        self.valid_size = args.valid_size
+        self.target_seq = args.target_seq

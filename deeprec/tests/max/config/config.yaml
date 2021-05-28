@@ -1,6 +1,6 @@
 input:
-    train: ./max/data/r0_r1_max_selex_seq_10mer_150_onestrand_relKa_train.h5
-    val: ./max/data/r0_r1_max_selex_seq_10mer_150_onestrand_relKa_val.h5
+    train: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.train.h5
+    val: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.val.h5
 output:
     path: ./max/output/
     model_tune: model_tune.tsv

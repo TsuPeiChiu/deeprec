@@ -10,8 +10,7 @@ class DeepRecEmsembler(object):
         if random_state != None:
             os.environ['PYTHONHASHSEED'] = str(random_state)
             np.random.seed(random_state)
-            ra.seed(random_state)
-        
+            ra.seed(random_state)        
         self.config = config
         self.nb_models = nb_models
         self.models = []
@@ -62,6 +61,21 @@ class DeepRecEmsembler(object):
                 self.selected_performances.append(performance)
         
         print("selected performance: \n" + str(self.selected_performances))
-        print("average r-squared:" + str(np.mean(self.selected_performances)))
+        print("average r-squared: " + str(np.mean(self.selected_performances)))
         
         return self.selected_models
+    
+    
+    def predict_average(self):
+        """ """
+        y_train = []
+        y_val = []
+        for i in range(len(self.selected_models)):
+            y_train.append(self.selected_models[i].predict(self.train_x))
+            y_val.append(self.selected_models[i].predict(self.val_x))
+            
+        y_train_avg = np.mean(y_train, axis=0)
+        y_val_avg = np.mean(y_train, axis=0)
+            
+        return y_train_avg, y_val_avg
+        

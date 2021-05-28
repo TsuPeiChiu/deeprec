@@ -75,7 +75,7 @@ class DeepRecModel(object):
             kf = KFold(n_splits=3)
             idx_cv = 0
             for idx_train, idx_val in kf.split(self.train_x):                
-                print('tuning ' + str(idx_params_tune+1) + '/' + 
+                print('tuning parameters' + str(idx_params_tune+1) + '/' + 
                       str(self.nb_params) + ':' + str(idx_cv+1) + '/3 ...')
                 
                 history = self.model.fit(self.train_x[idx_train],
@@ -105,7 +105,7 @@ class DeepRecModel(object):
                 
                 del history, p
                 gc.collect()                
-        else:
+        else:            
             history = self.model.fit(self.train_x,
                                      self.train_y, 
                                      validation_data=(self.val_x, self.val_y), 
@@ -171,19 +171,15 @@ class DeepRecModel(object):
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
         plt.show()
-        
-        
+                
     def __prepare_input(self):
         """ """
-        train_file, train_data = fut.read_hdf(self.params.train, 1024)
-        val_file, val_data = fut.read_hdf(self.params.val, 1024)
-         
-        # Train data (need to be fixed where we can only take 1-D input in the very first place)
-        train_x_major = np.array(train_data['hbond_major_x'])
-        train_x_minor = np.array(train_data['hbond_minor_x'])
+        # train data
+        train_file, train_data = fut.read_hdf(self.params.train, 1024)        
+        train_x_major = np.array(train_data['hbond_major_x']) 
+        train_x_minor = np.array(train_data['hbond_minor_x'])      
         train_x_con = np.concatenate([train_x_major, train_x_minor], axis=2)
-        
-        # add patch
+
         patch_len = self.params.hbond_major['filter_len']
         patch_col = np.zeros(train_x_con.shape[0]*
                              train_x_con.shape[1]*
@@ -194,22 +190,23 @@ class DeepRecModel(object):
                              train_x_con.shape[2],
                              patch_len)
         seq_len = int(train_x_con.shape[-1]/2)
-        train_x_patched = np.concatenate((train_x_con[:,:,:,:seq_len], patch_col, train_x_con[:,:,:,seq_len:]), axis=3)
-        
-        # reshape to 1D
+        train_x_patched = np.concatenate((train_x_con[:,:,:,:seq_len], 
+                                          patch_col, 
+                                          train_x_con[:,:,:,seq_len:]), axis=3)
         self.train_x = train_x_patched.reshape(train_x_patched.shape[0], 
-                                     train_x_patched.shape[1]*train_x_patched.shape[2]*train_x_patched.shape[3], 
+                                     train_x_patched.shape[1]*
+                                     train_x_patched.shape[2]*
+                                     train_x_patched.shape[3],
                                      order='C')
         self.train_y = np.array(train_data['c0_y'])
         self.train_seqs = train_data['probe_seq']
         self.seq_len = seq_len
         
-        # Val data
+        # val data
+        val_file, val_data = fut.read_hdf(self.params.val, 1024)
         val_x_major = np.array(val_data['hbond_major_x'])
         val_x_minor = np.array(val_data['hbond_minor_x'])
         val_x_con = np.concatenate([val_x_major, val_x_minor], axis=2)
-        
-        # add patch
         patch_len = self.params.hbond_minor['filter_len']
         patch_col = np.zeros(val_x_con.shape[0]*
                              val_x_con.shape[1]*
@@ -220,11 +217,13 @@ class DeepRecModel(object):
                              val_x_con.shape[2],
                              patch_len)
         seq_len = int(val_x_con.shape[-1]/2)
-        val_x_patched = np.concatenate((val_x_con[:,:,:,:seq_len], patch_col, val_x_con[:,:,:,seq_len:]), axis=3)
-        
-        # reshape to 1D        
+        val_x_patched = np.concatenate((val_x_con[:,:,:,:seq_len], 
+                                        patch_col, 
+                                        val_x_con[:,:,:,seq_len:]), axis=3)              
         self.val_x = val_x_patched.reshape(val_x_patched.shape[0],
-                                 val_x_patched.shape[1]*val_x_patched.shape[2]*val_x_patched.shape[3], 
+                                 val_x_patched.shape[1]*
+                                 val_x_patched.shape[2]*
+                                 val_x_patched.shape[3], 
                                  order='C')
         self.val_y  = np.array(val_data['c0_y'])
         self.val_seqs = val_data['probe_seq']

@@ -5,7 +5,6 @@ import pandas as pd
 import math as ma
 import deeprec.names as na
 import deeprec.params as pr
-import deeprec.encoders as ed
 import deeprec.visualizers as vi
 import lime.lime_tabular
 #from sklearn import linear_model
@@ -17,8 +16,7 @@ class DeepRecExplainer(object):
         if random_state != None:
             os.environ['PYTHONHASHSEED'] = str(random_state)
             np.random.seed(random_state)
-            ra.seed(random_state)
-            
+            ra.seed(random_state)            
         self.models = models
         self.x = x
         self.seq = seq
@@ -30,7 +28,7 @@ class DeepRecExplainer(object):
         self.groove_map = na.groove_map
         self.groove_names = na.groove_names
         self.channel_map = na.channel_map
-        self.signature_map = na.signature_map
+        self.seq_map = na.seq_map
         self.dispaly_map = na.dispaly_map
         self.results_column = na.results_column        
         self.seq_letters = na.seq_letters
@@ -38,14 +36,125 @@ class DeepRecExplainer(object):
         self.pc_letters = na.pc_letters
         self.groove_map = na.groove_map
     
-    def plot_logos(self, mode='multi-seq'):
+    def plot_logos(self, outfile=None):
         """"""      
-        self.samples, self.samples_name = self.__perturb(mode)
+        self.samples, self.samples_name = self.__perturb()
         self.ys = self.__predict()
-        results = self.__calculate_logos(mode)        
-        outfile = os.path.join(self.params.output_path, 
-                               self.params.model_logos)
+        results = self.__calculate_logos()        
+        logos_file = self.params.model_logos if outfile is None else outfile
+        outfile = os.path.join(self.params.output_path, logos_file)               
         vi.plot_logos(outfile, self.seq, results)
+        
+    def __perturb(self):
+        """"""
+        samples, samples_name = [], []
+        p = self.x.copy()
+        s = self.seq.copy()
+        samples.append(p)
+        samples_name.append(s)              
+        for i in range(len(self.seq)):
+            i_rev = self.seq_len-i-1     
+            for j, seq_letter in enumerate(self.seq_letters):                  
+                for g_type, nb_pos in self.groove_map.items():                        
+                    for l in range(nb_pos):                            
+                        # nullify the pc
+                        p_null = self.x.copy()
+                        s_null = self.seq + '_'.join(['',str(i+1),
+                                                self.groove_names[g_type],
+                                                str(l+1),'null'])
+                        for pc_letter in self.pc_letters:
+                            key = '_'.join([str(i+1),
+                                            self.groove_names[g_type],
+                                            str(l+1),pc_letter])
+                            idx = self.names_1d.index(key)                            
+                            key_rev = '_'.join([str(i_rev+1),
+                                            self.groove_names[g_type],
+                                            str(nb_pos-l),pc_letter])
+                            idx_rev = self.names_1d.index(key_rev)
+                            p_null[idx] = 0
+                            p_null[idx_rev] = 0                                
+                        samples.append(p_null)
+                        samples_name.append(s_null)
+
+                        # add A,D,M,N to null
+                        for c in na.pc_letters:
+                            p_add = p_null.copy()
+                            s_add = '_'.join([s_null,c])
+                            key = '_'.join([str(i+1),
+                                        self.groove_names[g_type],
+                                        str(l+1),c])
+                            idx = self.names_1d.index(key)
+                            key_rev = '_'.join([str(i_rev+1),
+                                                self.groove_names[g_type],
+                                                str(nb_pos-l),c])
+                            idx_rev = self.names_1d.index(key_rev)
+                            p_add[idx] = 1
+                            p_add[idx_rev] = 1
+                            samples.append(p_add)
+                            samples_name.append(s_add)
+#        print(samples_name)                              
+        return samples, samples_name
+
+    def __predict(self):
+        """"""
+        ys = []
+        for model in self.models:
+            y = model.predict(np.array(self.samples))
+            ys.append(y)
+        return ys
+
+    def __calculate_logos(self):
+        """"""
+        results = pd.DataFrame(columns=self.results_column)         
+        for s_pos in range(len(self.seq)):
+            for g_type, nb_pos in self.groove_map.items():
+                for h_pos in range(nb_pos):
+                    for pc_type, pc_code in self.channel_map.items():                                                                     
+                        if pc_type in self.dispaly_map[g_type][h_pos] \
+                                                        [self.seq[s_pos]]:                           
+                            if pc_type in self.seq_map[g_type] \
+                                                        [self.seq[s_pos]] \
+                                                        [h_pos]:                                                                                                                        
+                                diffs_means, diffs_sems = [], []
+                                key_ref = '_'.join([self.seq, 
+                                                    str(s_pos+1),
+                                                    self.groove_names[g_type],
+                                                    str(h_pos+1),'null',
+                                                    pc_type])
+                                key_null = '_'.join([self.seq, 
+                                                     str(s_pos+1),
+                                                     self.groove_names[g_type],
+                                                     str(h_pos+1),'null'])                                
+                            else:
+                                diffs_means, diffs_sems = [], []
+                                seq_pc_type = self.seq_map[g_type] \
+                                                [self.seq[s_pos]] \
+                                                [h_pos]                                
+                                key_ref = '_'.join([self.seq, 
+                                                     str(s_pos+1),
+                                                     self.groove_names[g_type],
+                                                     str(h_pos+1), 'null',
+                                                     pc_type])
+                                key_null = '_'.join([self.seq, 
+                                                    str(s_pos+1),
+                                                    self.groove_names[g_type],
+                                                    str(h_pos+1), 'null',
+                                                    seq_pc_type])                                                              
+                            diffs_mean, diffs_sem = \
+                                self.__calculate_diffs(key_ref, key_null)                                                                        
+                            diffs_means.append(diffs_mean)
+                            diffs_sems.append(diffs_sem)                                                                                                                                                   
+                            pc_mean, pc_sem = self.__calculate_mean_sem(
+                                    diffs_means, diffs_sems)
+                            results = results.append({'seq': self.seq,
+                                    'type': g_type, 
+                                    'h_pos': h_pos, 
+                                    's_pos': s_pos, 
+                                    'channel': self.channel_map[pc_type], 
+                                    'delta': pc_mean,
+                                    'sem': pc_sem}, ignore_index=True)
+                                                                                                                                               
+        return results
     
     def __calculate_diffs(self, key_ref, key_null):
         """
@@ -56,202 +165,38 @@ class DeepRecExplainer(object):
         diffs = []
         for i in range(len(self.ys)):
             val_ref = self.ys[i][idx_ref]
-            val_null = self.ys[i][idx_null]
-            dddG = ma.log(val_ref)-ma.log(val_null)      
-            diffs.append(dddG)             
+            val_null = self.ys[i][idx_null]            
+            if val_null!=0:
+                dddG = ma.log(val_ref)-ma.log(val_null)
+            else:
+                dddG = ma.log(val_ref)-ma.log(0.000001)            
+            diffs.append(dddG)
+        
+        """       
+        if 1==1:
+        #if key_null.find('_M_2_')!=-1:
+            print(key_ref)
+            print(key_null)
+            print(self.ys[0][idx_ref])
+            print(self.ys[0][idx_null])
+            print('')
+        """          
+            
         diffs_mean = np.mean(diffs)
         diffs_std = np.std(diffs)
-        diffs_sem = diffs_std/np.sqrt(len(diffs))
-        
+        diffs_sem = diffs_std/np.sqrt(len(diffs))        
         return diffs_mean, diffs_sem
     
     def __calculate_mean_sem(self, diffs_means, diffs_sems):
         pc_mean = np.mean(diffs_means)        
         pc_sem = np.sqrt(np.sum(np.square(diffs_sems)))
-
         return pc_mean, pc_sem
             
-    def __calculate_logos(self, mode='multi-seq'):
-        """"""
-        results = pd.DataFrame(columns=self.results_column)                
-        for s_pos in range(len(self.seq)):
-            for g_type, nb_pos in self.groove_map.items():
-                for h_pos in range(nb_pos):
-                    for pc_type, pc_code in self.channel_map.items():                        
-                        if mode=='multi-seq':                                                
-                            if pc_type in self.dispaly_map[g_type][h_pos][self.seq[s_pos]]:
-                                matches = self.signature_map[g_type][h_pos][pc_type]
-                                diffs_means, diffs_sems = [], []
-                                for bp in matches:
-                                    key_ref = self.seq[:s_pos]+bp+self.seq[s_pos+1:]
-                                    key_null = key_ref + '_'.join(['',str(s_pos+1),
-                                                                   self.groove_names[g_type],
-                                                                   str(h_pos+1),'null'])
-                                    diffs_mean, diffs_sem = self.__calculate_diffs(key_ref, key_null)
-                                    diffs_means.append(diffs_mean)
-                                    diffs_sems.append(diffs_sem)
-                                    
-                                    
-                                    
-                                pc_mean, pc_sem = self.__calculate_mean_sem(diffs_means, diffs_sems)
-                                results = results.append({'seq': self.seq,
-                                                          'type': g_type, 
-                                                          'h_pos': h_pos, 
-                                                          's_pos': s_pos, 
-                                                          'channel': self.channel_map[pc_type], 
-                                                          'delta': pc_mean,
-                                                          'sem': pc_sem}, ignore_index=True)
-                        elif mode=='single-seq':
-                            if pc_type in self.dispaly_map[g_type][h_pos][self.seq[s_pos]]:
-                                if pc_type=='M' and g_type=='major':
-                                    # methyl group to C
-                                    if h_pos==0 and self.seq[s_pos]=='C':
-                                        key_ref = self.seq
-                                        key_null = key_ref + '_'.join(['',str(s_pos+1),
-                                                                               self.groove_names[g_type],
-                                                                               str(h_pos+1),'M'])
-                                        diffs_mean, diffs_sem = self.__calculate_diffs(key_ref, key_null)
-                                        pc_mean, pc_sem = self.__calculate_mean_sem(diffs_mean, diffs_sem)
-                                        results = results.append({'seq': self.seq,
-                                                                  'type': g_type, 
-                                                                  'h_pos': h_pos, 
-                                                                  's_pos': s_pos, 
-                                                                  'channel': self.channel_map[pc_type], 
-                                                                  'delta': pc_mean,
-                                                                  'sem': pc_sem}, ignore_index=True)
-                                    elif h_pos==3 and self.seq[s_pos]=='G':
-                                        # methyl group to C
-                                        key_ref = self.seq
-                                        key_null = key_ref + '_'.join(['',str(s_pos+1),
-                                                                               self.groove_names[g_type],
-                                                                               str(h_pos+1),'M'])
-                                        diffs_mean, diffs_sem = self.__calculate_diffs(key_ref, key_null)
-                                        pc_mean, pc_sem = self.__calculate_mean_sem(diffs_mean, diffs_sem)
-                                        results = results.append({'seq': self.seq,
-                                                                  'type': g_type, 
-                                                                  'h_pos': h_pos, 
-                                                                  's_pos': s_pos, 
-                                                                  'channel': self.channel_map[pc_type], 
-                                                                  'delta': pc_mean,
-                                                                  'sem': pc_sem}, ignore_index=True)
-                                                                        
-                                else:
-                                    key_ref = self.seq
-                                    key_null = key_ref + '_'.join(['',str(s_pos+1),
-                                                                           self.groove_names[g_type],
-                                                                           str(h_pos+1),'null'])
-                                    diffs_mean, diffs_sem = self.__calculate_diffs(key_ref, key_null)
-                                    pc_mean, pc_sem = self.__calculate_mean_sem(diffs_mean, diffs_sem)
-                                    results = results.append({'seq': self.seq,
-                                                              'type': g_type, 
-                                                              'h_pos': h_pos, 
-                                                              's_pos': s_pos, 
-                                                              'channel': self.channel_map[pc_type], 
-                                                              'delta': pc_mean,
-                                                              'sem': pc_sem}, ignore_index=True)                
-        return results
     
-    def __predict(self):
-        """"""
-        ys = []
-        for model in self.models:
-            y = model.predict(np.array(self.samples))
-            ys.append(y)
-        return ys
-    
-    def __perturb(self, mode='multi-seq'):
-        """"""
-        samples, samples_name = [], []
-        p = self.x.copy()
-        s = self.seq.copy()
-        samples.append(p)
-        samples_name.append(s)
-                        
-        for i in range(len(self.seq)):
-            i_rev = self.seq_len-i-1        
-            for j, seq_letter in enumerate(self.seq_letters):
-                if self.seq[i]==seq_letter:                    
-                    # nullify each h_pos at a time
-                    for g_type, nb_pos in self.groove_map.items():                        
-                        for l in range(nb_pos): # pos                            
-                            p_null = self.x.copy()
-                            s_null = self.seq + '_'.join(['',str(i+1),
-                                                          self.groove_names[g_type],
-                                                          str(l+1),'null'])
-                            for pc_letter in self.pc_letters:
-                                key = '_'.join([str(i+1),self.groove_names[g_type],
-                                                str(l+1),pc_letter])
-                                idx = self.names_1d.index(key)                             
-                                key_rev = '_'.join([str(i_rev+1),self.groove_names[g_type],
-                                                    str(nb_pos-l),pc_letter])
-                                idx_rev = self.names_1d.index(key_rev)
-                                p_null[idx] = 0
-                                p_null[idx_rev] = 0
-                            samples.append(p_null)
-                            samples_name.append(s_null)
-                    
-                    # add 5mC to C
-                    if mode=='single-seq':
-                        if seq_letter=='C':                       
-                            p_methyl = self.x.copy()
-                            s_methyl = self.seq + '_'.join(['',str(i+1),'M','1','M'])
-                            key = '_'.join([str(i+1),'M','4','M'])
-                            idx = self.names_1d.index(key)
-                            key_rev = '_'.join([str(i_rev+1),'M','1','M'])
-                            idx_rev = self.names_1d.index(key_rev)
-                            p_methyl[idx] = 1
-                            p_methyl[idx_rev] = 1
-                            samples.append(p_methyl)
-                            samples_name.append(s_methyl)
-                        elif seq_letter=='G':
-                            p_methyl = self.x.copy()
-                            s_methyl = self.seq + '_'.join(['',str(i+1),'M','4','M'])
-                            key = '_'.join([str(i+1),'M','4','M'])
-                            idx = self.names_1d.index(key)
-                            key_rev = '_'.join([str(i_rev+1),'M','1','M'])
-                            idx_rev = self.names_1d.index(key_rev)
-                            p_methyl[idx] = 1
-                            p_methyl[idx_rev] = 1
-                            samples.append(p_methyl)
-                            samples_name.append(s_methyl)
-                else:
-                    if mode=='multi-seq':
-                        p = self.x.copy()
-                        s = self.seq[:i]+seq_letter+self.seq[i+1:]                    
-                        code = ed.hbond_major_encode[seq_letter]
-                        code_rev = ed.hbond_major_encode[self.seq_letters_rev[j]]
-                        for g_type, nb_pos in self.groove_map.items():
-                            for l in range(nb_pos):
-                                for k, pc_letter in enumerate(self.pc_letters):                                                                
-                                    key = '_'.join([str(i+1),self.groove_names[g_type],
-                                                    str(l+1),pc_letter])
-                                    idx = self.names_1d.index(key)
-                                    p[idx] = code[l*4+k]
-                                    key_rev = '_'.join([str(i_rev+1),self.groove_names[g_type],
-                                                        str(nb_pos-l),pc_letter])                                
-                                    idx_rev = self.names_1d.index(key_rev)
-                                    p[idx_rev] = code_rev[l*4+k]
 
-                        # nullify each h_pos at a time
-                        for g_type, nb_pos in self.groove_map.items():
-                            for l in range(nb_pos):
-                                p_null = p.copy()
-                                s_null = s + '_'.join(['',str(i+1),self.groove_names[g_type],
-                                                       str(l+1),'null']) 
-                                for pc_letter in self.pc_letters:
-                                    key = '_'.join([str(i+1),self.groove_names[g_type],
-                                                    str(l+1),pc_letter])
-                                    idx = self.names_1d.index(key)
-                                    key_rev = '_'.join([str(i_rev+1),self.groove_names[g_type],
-                                                        str(nb_pos-l),pc_letter])
-                                    idx_rev = self.names_1d.index(key_rev)
-                                    p_null[idx] = 0
-                                    p_null[idx_rev] = 0                            
-                                samples.append(p_null)
-                                samples_name.append(s_null)                    
-                        samples.append(p)
-                        samples_name.append(s)                    
-        return samples, samples_name
+    
+
+
         
 class DeepRecLimeExplainer(object):
     """ """            
