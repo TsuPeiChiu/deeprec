@@ -1,10 +1,12 @@
 input:
     train: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.train.h5
     val: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.val.h5
+    test: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.test.h5
 output:
     path: ./max/output/
     model_tune: model_tune.tsv
     model_logos: model_logos.png
+    model_performances: model_performance.tsv
 optimizer: adam
 optimizer_params:
     lr: 0.001

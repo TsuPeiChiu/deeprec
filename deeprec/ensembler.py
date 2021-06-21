@@ -20,7 +20,7 @@ class DeepRecEmsembler(object):
         self.quantile = quantile
         self.random_states = np.random.randint(10000, size=(self.nb_models))
             
-    def fit(self, verbose=False):
+    def fit(self, verbose=False, is_shuffle=False):
         """ """
         for i in range(len(self.random_states)):
             print("fitting with seed " + str(i+1) + "/" \
@@ -35,7 +35,16 @@ class DeepRecEmsembler(object):
                 self.seq_len = deeprec_model.seq_len        
                 self.val_x = deeprec_model.val_x
                 self.val_y  = deeprec_model.val_y
-                self.val_seqs =deeprec_model.val_seqs
+                self.val_seqs = deeprec_model.val_seqs
+                self.test_x = deeprec_model.test_x
+                self.test_y  = deeprec_model.test_y
+                self.test_seqs = deeprec_model.test_seqs                                
+                self.out_performs = os.path.join(
+                        deeprec_model.params.output_path, 
+                        deeprec_model.params.model_performances)                
+                if is_shuffle==True:                    
+                    np.random.shuffle(self.train_y)
+                    np.random.shuffle(self.val_y)
                 
             else:
                 input_data={'train_x':self.train_x,
@@ -44,7 +53,10 @@ class DeepRecEmsembler(object):
                             'seq_len':self.seq_len,
                             'val_x':self.val_x,
                             'val_y':self.val_y,
-                            'val_seqs':self.val_seqs}                                
+                            'val_seqs':self.val_seqs,
+                            'test_x':self.test_x,
+                            'test_y':self.test_y,
+                            'test_seqs':self.test_seqs}                                
                 deeprec_model = dm.DeepRecModel(self.config, 
                                             random_state=self.random_states[i],
                                             input_data=input_data)
@@ -62,6 +74,9 @@ class DeepRecEmsembler(object):
         
         print("selected performance: \n" + str(self.selected_performances))
         print("average r-squared: " + str(np.mean(self.selected_performances)))
+        
+        with open(self.out_performs, 'w') as pfile:
+            pfile.writelines("%f\t" % p for p in self.selected_performances)
         
         return self.selected_models
     

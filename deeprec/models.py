@@ -38,7 +38,10 @@ class DeepRecModel(object):
             self.seq_len = input_data['seq_len']        
             self.val_x = input_data['val_x']
             self.val_y  = input_data['val_y']
-            self.val_seqs =input_data['val_seqs']
+            self.val_seqs =input_data['val_seqs'] 
+            self.test_x = input_data['test_x']
+            self.test_y  = input_data['test_y']
+            self.test_seqs =input_data['test_seqs']
         
         self.__build(h5_file)
                     
@@ -62,7 +65,8 @@ class DeepRecModel(object):
               str(self.params_tune[idx_best]))                
         self.params.update(self.params_tune[idx_best])
         
-        config_tuned = '.'.join([self.config.replace('.yaml',''),'tuned','yaml'])        
+        config_tuned = '.'.join([self.config.replace('.yaml',''),
+                                 'tuned','yaml'])        
         self.params.save(config_tuned)                
         self.__build()
         
@@ -105,7 +109,7 @@ class DeepRecModel(object):
                 
                 del history, p
                 gc.collect()                
-        else:            
+        else:             
             history = self.model.fit(self.train_x,
                                      self.train_y, 
                                      validation_data=(self.val_x, self.val_y), 
@@ -139,7 +143,26 @@ class DeepRecModel(object):
 
     def load_model(self, path):
         """ """
-        self.model.load_model(path)        
+        self.model.load_model(path)
+    
+    def get_x(self, target_seq):
+        x, target_type, target_index = None, None, None
+        data_type = ['train', 'val']
+        for t in data_type:
+            if t=='train':
+                for i in range(len(self.train_seqs)):                                                                            
+                    if self.train_seqs[i].astype(str)==target_seq:                                               
+                        x, target_type, target_index = self.train_x[i], t, i
+                        break
+            elif t=='val':
+                for i in range(len(self.val_seqs)):
+                    if self.val_seqs[i].astype(str)==target_seq:                    
+                        x, target_type, target_index = self.val_x[i], t, i
+                        break
+        print('target_seq: ' + target_seq)
+        print('target_type: ' + target_type)
+        print('target_index: ' + str(target_index))
+        return x
     
     def __build(self, h5_file=None):
         """ """
@@ -227,4 +250,31 @@ class DeepRecModel(object):
                                  order='C')
         self.val_y  = np.array(val_data['c0_y'])
         self.val_seqs = val_data['probe_seq']
+        
+        # test data
+        test_file, test_data = fut.read_hdf(self.params.test, 1024)
+        test_x_major = np.array(test_data['hbond_major_x'])
+        test_x_minor = np.array(test_data['hbond_minor_x'])
+        test_x_con = np.concatenate([test_x_major, test_x_minor], axis=2)
+        patch_len = self.params.hbond_minor['filter_len']
+        patch_col = np.zeros(test_x_con.shape[0]*
+                             test_x_con.shape[1]*
+                             test_x_con.shape[2]*
+                             patch_len)
+        patch_col = patch_col.reshape(test_x_con.shape[0],
+                             test_x_con.shape[1],
+                             test_x_con.shape[2],
+                             patch_len)
+        seq_len = int(test_x_con.shape[-1]/2)
+        test_x_patched = np.concatenate((test_x_con[:,:,:,:seq_len], 
+                                        patch_col, 
+                                        test_x_con[:,:,:,seq_len:]), axis=3)              
+        self.test_x = test_x_patched.reshape(test_x_patched.shape[0],
+                                 test_x_patched.shape[1]*
+                                 test_x_patched.shape[2]*
+                                 test_x_patched.shape[3], 
+                                 order='C')
+        self.test_y  = np.array(test_data['c0_y'])
+        self.test_seqs = test_data['probe_seq']
+        
             

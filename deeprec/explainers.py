@@ -11,19 +11,19 @@ import lime.lime_tabular
 
 class DeepRecExplainer(object):
     """"""
-    def __init__(self, config, models, x, seq, random_state=None):        
+    def __init__(self, config, models, xs, seqs, random_state=None):        
         """"""
         if random_state != None:
             os.environ['PYTHONHASHSEED'] = str(random_state)
             np.random.seed(random_state)
             ra.seed(random_state)            
         self.models = models
-        self.x = x
-        self.seq = seq
+        self.xs = xs
+        self.seqs = seqs
         self.random_state = random_state
         self.params = pr.Params(config, self.random_state)
-        self.seq_len = int(len(self.x)/28) # with padding
-        self.pad_len = self.seq_len-2*len(self.seq)
+        self.seq_len = int(len(self.xs[0])/28) # with padding
+        self.pad_len = self.seq_len-2*len(self.seqs[0])
         self.names_1d = na.generate_names_1d(self.seq_len)
         self.groove_map = na.groove_map
         self.groove_names = na.groove_names
@@ -36,20 +36,32 @@ class DeepRecExplainer(object):
         self.pc_letters = na.pc_letters
         self.groove_map = na.groove_map
     
-    def plot_logos(self, outfile=None):
-        """"""      
-        self.samples, self.samples_name = self.__perturb()
-        self.ys = self.__predict()
-        results = self.__calculate_logos()        
-        logos_file = self.params.model_logos if outfile is None else outfile
-        outfile = os.path.join(self.params.output_path, logos_file)               
-        vi.plot_logos(outfile, self.seq, results)
+    def plot_logos(self):
+        """"""
+        for self.x, self.seq in zip(self.xs, self.seqs):
+
+            self.samples, self.samples_name = self.__perturb()
+            self.ys = self.__predict()
+            results = self.__calculate_logos()        
+
+            logos_file = self.params.model_logos.replace('.png',
+                                                         '.'+self.seq+'.png')
+            
+            
+            outfile = os.path.join(self.params.output_path, logos_file)
+
+  
+            vi.plot_logos(outfile, self.seq, results)
+        
+        
+        
+        
         
     def __perturb(self):
         """"""
         samples, samples_name = [], []
         p = self.x.copy()
-        s = self.seq.copy()
+        s = self.seq
         samples.append(p)
         samples_name.append(s)              
         for i in range(len(self.seq)):
@@ -66,13 +78,13 @@ class DeepRecExplainer(object):
                             key = '_'.join([str(i+1),
                                             self.groove_names[g_type],
                                             str(l+1),pc_letter])
-                            idx = self.names_1d.index(key)                            
+                            idx = self.names_1d.index(key)                   
                             key_rev = '_'.join([str(i_rev+1),
                                             self.groove_names[g_type],
                                             str(nb_pos-l),pc_letter])
                             idx_rev = self.names_1d.index(key_rev)
                             p_null[idx] = 0
-                            p_null[idx_rev] = 0                                
+                            p_null[idx_rev] = 0                              
                         samples.append(p_null)
                         samples_name.append(s_null)
 
@@ -139,7 +151,7 @@ class DeepRecExplainer(object):
                                                     str(s_pos+1),
                                                     self.groove_names[g_type],
                                                     str(h_pos+1), 'null',
-                                                    seq_pc_type])                                                              
+                                                    seq_pc_type])                                                            
                             diffs_mean, diffs_sem = \
                                 self.__calculate_diffs(key_ref, key_null)                                                                        
                             diffs_means.append(diffs_mean)
@@ -172,15 +184,14 @@ class DeepRecExplainer(object):
                 dddG = ma.log(val_ref)-ma.log(0.000001)            
             diffs.append(dddG)
         
-        """       
-        if 1==1:
-        #if key_null.find('_M_2_')!=-1:
+        """
+        if key_null.find('_m_2_')!=-1:
             print(key_ref)
             print(key_null)
             print(self.ys[0][idx_ref])
             print(self.ys[0][idx_null])
             print('')
-        """          
+        """
             
         diffs_mean = np.mean(diffs)
         diffs_std = np.std(diffs)

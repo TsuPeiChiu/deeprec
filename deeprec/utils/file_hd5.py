@@ -13,6 +13,9 @@ def ascii_to_hd5(infile_prefix, seqs, resps):
             infile_tmp = '.'.join([infile_prefix, k, 'tmp'])
             data = np.genfromtxt(infile_tmp, delimiter= ',') ###
 
+            if len(data.shape)==1:
+                data = data.reshape(1, data.shape[0])
+
             width = int(data.shape[1]/(v*4))
             dataset = data.reshape(data.shape[0], 4, v, width, order='F') 
             dataset_name = '_'.join([k, 'x'])

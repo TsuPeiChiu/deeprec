@@ -31,6 +31,7 @@ def reverse_compl(seq):
         bases = bases.replace(v,k)
     return bases
 
+"""
 def find_index(config, seq):
     """ """
     deeprec_model = dm.DeepRecModel(config=config)
@@ -52,3 +53,4 @@ def find_index(config, seq):
     print('target_type: ' + target_type)
     print('target_index: ' + str(target_index))
     return target_type, target_index
+"""

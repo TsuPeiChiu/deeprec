@@ -9,7 +9,7 @@ class Encoders(object):
     def __init__(self):
         pass
     
-    def prepare_data(self, infile, config, test_size=0.1, sep='\t', 
+    def prepare_data(self, infile, testfile, config, test_size=0.1, sep='\t', 
                      random_state=None):
         """ """
         print('preparing data ...')
@@ -25,10 +25,19 @@ class Encoders(object):
                 seq = seq + self.__revcompl(seq)
                 seqs.append(seq)
                 resps.append(resp)
-        seqs_train, seqs_test, resps_train, resps_test = train_test_split(
-                seqs, resps, test_size=test_size, random_state=random_state)                
-        encode_seqs = {'train': seqs_train, 'val': seqs_test}
-        encode_resps = {'train': resps_train, 'val': resps_test}
+        seqs_test, resps_test = [], []
+        with open(testfile) as f:
+            for line in f:
+                seq = line.strip().upper()
+                seq_len = len(seq)
+                seq = seq + self.__revcompl(seq)
+                seqs_test.append(seq)
+                resps_test.append(0)               
+        seqs_train, seqs_val, resps_train, resps_val = train_test_split(
+                seqs, resps, test_size=test_size, random_state=random_state)      
+        encode_seqs = {'train': seqs_train, 'val': seqs_val, 'test': seqs_test}
+        encode_resps = {'train': resps_train, 'val': resps_val, 
+                        'test': resps_test}
         encode_maps = {'hbond_major': hbond_major_encode,
                        'hbond_minor': hbond_minor_encode}
         for k1, v1 in encode_seqs.items():
@@ -38,8 +47,8 @@ class Encoders(object):
                     for seq in encode_seqs[k1]:
                         encode = self.__encode_sequence(seq, v2)
                         encode_string = ','.join(str(e) for e in encode)
-                        f.write(encode_string + '\n')
-            seqs_trim = [item[0:10] for item in encode_seqs[k1]] ###
+                        f.write(encode_string + '\n')            
+            seqs_trim = [item[0:seq_len] for item in encode_seqs[k1]]    
             infile_prefix = infile.replace('.txt', '.'.join(['',k1]))
             hf.ascii_to_hd5(infile_prefix, seqs_trim, encode_resps[k1])            
         

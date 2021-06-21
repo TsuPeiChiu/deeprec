@@ -18,9 +18,11 @@ class Params(object):
             c = yaml.full_load(file)            
             self.train = c['input']['train']
             self.val = c['input']['val']
+            self.test = c['input']['test']
             self.output_path = c['output']['path']
             self.model_tune = c['output']['model_tune']
             self.model_logos = c['output']['model_logos']
+            self.model_performances = c['output']['model_performances']
             self.optimizer = c['optimizer']
             self.optimizer_params = {
                 'lr': float(c['optimizer_params']['lr'])
@@ -66,13 +68,15 @@ class Params(object):
         with open(config_tune) as f:
             c = yaml.full_load(f)            
             g, lr, nb_epoch, batch_size = [], [], [], []
-            cartridges_l1, cartridges_nb_hidden = [], []
+            cartridges_l1, cartridges_l2, cartridges_nb_hidden = [], [], []
             joint_nb_hidden, joint_drop_out = [], []        
             for i in c['lr']: lr.append({'lr':i})
             for i in c['nb_epoch']: nb_epoch.append({'nb_epoch':i})
             for i in c['batch_size']: batch_size.append({'batch_size':i})
             for i in c['cartridges_l1']: 
                 cartridges_l1.append({'cartridges_l1':i})
+            for i in c['cartridges_l2']: 
+                cartridges_l2.append({'cartridges_l2':i})   
             for i in c['cartridges_nb_hidden']: 
                 cartridges_nb_hidden.append({'cartridges_nb_hidden':i})
             for i in c['joint_nb_hidden']: 
@@ -83,6 +87,7 @@ class Params(object):
             if c['nb_epoch']!=[]: g+=[nb_epoch]
             if c['batch_size']!=[]: g+=[batch_size]
             if c['cartridges_l1']!=[]: g+=[cartridges_l1]
+            if c['cartridges_l2']!=[]: g+=[cartridges_l2]
             if c['cartridges_nb_hidden']!=[]: g+=[cartridges_nb_hidden]
             if c['joint_drop_out']!=[]: g+=[joint_drop_out]
             if c['joint_nb_hidden']!=[]: g+=[joint_nb_hidden]
@@ -107,10 +112,15 @@ class Params(object):
                     self.batch_size=int(i['batch_size'])
                 if k=='cartridges_l1': 
                     self.hbond_major['l1']=float(i['cartridges_l1'])
-                    self.hbond_minor['l1']=float(i['cartridges_l1'])                
+                    self.hbond_minor['l1']=float(i['cartridges_l1'])
+                if k=='cartridges_l2': 
+                    self.hbond_major['l2']=float(i['cartridges_l2'])
+                    self.hbond_minor['l2']=float(i['cartridges_l2'])
                 if k=='cartridges_nb_hidden': 
-                    self.hbond_major['nb_hidden']=int(i['cartridges_nb_hidden'])
-                    self.hbond_minor['nb_hidden']=int(i['cartridges_nb_hidden'])
+                    self.hbond_major['nb_hidden']= \
+                            int(i['cartridges_nb_hidden'])
+                    self.hbond_minor['nb_hidden']= \
+                            int(i['cartridges_nb_hidden'])
                 if k=='joint_nb_hidden': 
                     self.joint['nb_hidden']=int(i['joint_nb_hidden'])
                 if k=='joint_drop_out': 
@@ -119,10 +129,11 @@ class Params(object):
     def save(self, outfile):
         """ """
         c = {}
-        c['input'] = {'train': self.train, 'val': self.val}
+        c['input'] = {'train': self.train, 'val': self.val, 'test': self.test}
         c['output'] = {'path': self.output_path,
                          'model_tune': self.model_tune, 
-                         'model_logos': self.model_logos}
+                         'model_logos': self.model_logos,
+                         'model_performances': self.model_performances}
         c['optimizer'] = self.optimizer
         c['optimizer_params'] = {'lr': self.optimizer_params['lr']}
         c['loss'] = self.loss

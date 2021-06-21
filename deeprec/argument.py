@@ -8,11 +8,11 @@ class ArgumentReader(object):
         p.add_argument('-t', action='store', dest='config_tune', 
                         help='Config for hyperparameter search')
         p.add_argument('-p', action='store', type=int, dest='nb_params', 
-                        help='Number of params for hyperparameter search')
+                        help='Number of param sets for hyperparameter search')
         p.add_argument('-e', action='store', type=int, dest='nb_models', 
                         help='Number of models for ensemble learning')
         p.add_argument('-q', action='store', type=float, dest='quantile', 
-                        help='Number of models for ensemble learning')
+                        help='Quantile of models selected for analysis')
         p.add_argument('-s', action='store', type=int, dest='random_state', 
                         help='Seed for reproducing result')
         p.add_argument('-i', action='store', dest='input_selex', 

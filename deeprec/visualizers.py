@@ -97,13 +97,23 @@ def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y=0.8):
             y += abs(score)
     lim_y_min, lim_y_max = (-1.0, 1.0)
     labels = ['', '-0.8', '-0.6', '-0.4', '-0.2', '0.0', 
-              '0.2', '0.4', '0.6', '0.8', '']
+              '0.2', '0.4', '0.6', '0.8', '']    
     if max_y*2 < 0.8:
         lim_y_min, lim_y_max = (-0.8, 0.8)
         labels = ['', '-0.6', '-0.4', '-0.2', '0.0', '0.2', '0.4', '0.6', '']        
     if max_y*2 < 0.6:
         lim_y_min, lim_y_max = (-0.6, 0.6)
         labels = ['', '-0.4', '-0.2', '0.0', '0.2', '0.4', '']
+    if max_y*2 < 0.4:
+        lim_y_min, lim_y_max = (-0.4, 0.4)
+        labels = ['', '-0.2', '0.0', '0.2', '']
+    if max_y*2 < 0.2:
+        lim_y_min, lim_y_max = (-0.2, 0.2)
+        labels = ['', '0.0', '']
+    if max_y*2 < 0.1:
+        lim_y_min, lim_y_max = (-0.1, 0.1)
+        labels = ['', '-0.08', '-0.06', '-0.04', '-0.02', '0.00', 
+              '0.02', '0.04', '0.06', '0.08', '']            
     ax.tick_params(labelsize=20)
     ax.set_xlim(0,len(seq)+1)
     ax.set_ylim(lim_y_min,lim_y_max)

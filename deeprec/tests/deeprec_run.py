@@ -9,15 +9,16 @@ from deeprec.argument import ArgumentReader
 def main(args):
     """ """
     ar = ArgumentReader(args)
-        
+    
     # 0. data preparation
     onestrand_selex = fs.remove_redundancy(ar.input_selex)
     deeprec_encoder = ec.Encoders()
-    deeprec_encoder.prepare_data(infile=onestrand_selex, 
+    deeprec_encoder.prepare_data(infile=onestrand_selex,
+                                 testfile=ar.target_seq,
                                  config=ar.config, 
                                  test_size=ar.valid_size, 
                                  random_state=ar.random_state)
-
+     
     # 1. model tuning
     deeprec_model = dm.DeepRecModel(config=ar.config, 
                                     random_state=ar.random_state)
@@ -30,14 +31,13 @@ def main(args):
                                             nb_models=ar.nb_models, 
                                             quantile=ar.quantile, 
                                             random_state=ar.random_state)
-    deeprec_models = deeprec_emsembler.fit(verbose=False)
+    deeprec_models = deeprec_emsembler.fit(verbose=False, is_shuffle=False)
     
     # 3. model interpreting
-    seq_type, seq_idx = fs.find_index(config_tuned, ar.target_seq)
     deeprec_explainer = ep.DeepRecExplainer(config=config_tuned, 
-                        models=deeprec_models,
-                        x=deeprec_models[0].train_x[seq_idx], 
-                        seq=deeprec_models[0].train_seqs[seq_idx].astype(str),
+                        models=deeprec_models,                        
+                        xs=deeprec_models[0].test_x,
+                        seqs=deeprec_models[0].test_seqs,
                         random_state=ar.random_state)
     deeprec_explainer.plot_logos()
     
