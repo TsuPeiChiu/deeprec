@@ -20,7 +20,10 @@ class ArgumentReader(object):
         p.add_argument('-v', action='store', type=float, dest='valid_size', 
                         help='Validation set size')
         p.add_argument('-d', action='store', dest='target_seq', 
-                        help='Target sequence for interpretation')        
+                        help='Target sequence for interpretation')
+        p.add_argument('-f', action='store', type=int, dest='shuffle', 
+                       default=0, help='Flag for shuffling y')
+        
         args = p.parse_args()         
         self.config = args.config
         self.config_tune = args.config_tune
@@ -30,4 +33,5 @@ class ArgumentReader(object):
         self.random_state = args.random_state
         self.input_selex = args.input_selex
         self.valid_size = args.valid_size
-        self.target_seq = args.target_seq
+        self.target_seq = args.target_seq        
+        self.shuffle=True if args.shuffle==1 else False 

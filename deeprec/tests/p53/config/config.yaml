@@ -6,7 +6,9 @@ output:
     path: ./p53/output/
     model_tune: model_tune.tsv
     model_logos: model_logos.png
+    model_logos_results: model_logos_results.tsv
     model_performances: model_performance.tsv
+    test_predictions: test_predictions.tsv
 optimizer: adam
 optimizer_params:
     lr: 0.001

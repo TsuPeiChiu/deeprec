@@ -1,4 +1,4 @@
-import os, gc
+import os, gc, math
 import numpy as np
 import random as ra
 import tensorflow as tf
@@ -74,7 +74,10 @@ class DeepRecModel(object):
                         
     def fit(self, is_tune=False, idx_params_tune=None, verbose=True):
         """ """
-        callback_early_stopping = cb.EarlyStopping(monitor='loss', patience=10)
+        callback_early_stopping = cb.EarlyStopping(monitor='loss', patience=5)
+        def lr_exp_decay(epoch, lr):
+            return self.params.optimizer_params['lr']*math.exp(-0.01*epoch)
+        
         if is_tune:
             kf = KFold(n_splits=3)
             idx_cv = 0
@@ -105,8 +108,7 @@ class DeepRecModel(object):
                 idx_cv+=1                                              
                 with open(os.path.join(self.params.output_path,
                                        self.params.model_tune), mode='a') as f: 
-                    p.to_csv(f, sep='\t', header=False, index=False)
-                
+                    p.to_csv(f, sep='\t', header=False, index=False)                
                 del history, p
                 gc.collect()                
         else:             
@@ -117,7 +119,8 @@ class DeepRecModel(object):
                                      shuffle='batch',
                                      verbose=verbose,
                                      batch_size=self.params.batch_size, 
-                                     callbacks=[callback_early_stopping])
+                                     callbacks=[callback_early_stopping,
+                                     cb.LearningRateScheduler(lr_exp_decay)])
 #            outfile = os.path.join(self.params.output_path, 
 #                                   self.params.model_whole)
                         

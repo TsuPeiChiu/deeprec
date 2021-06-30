@@ -98,6 +98,7 @@ def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y=0.8):
     lim_y_min, lim_y_max = (-1.0, 1.0)
     labels = ['', '-0.8', '-0.6', '-0.4', '-0.2', '0.0', 
               '0.2', '0.4', '0.6', '0.8', '']    
+    """
     if max_y*2 < 0.8:
         lim_y_min, lim_y_max = (-0.8, 0.8)
         labels = ['', '-0.6', '-0.4', '-0.2', '0.0', '0.2', '0.4', '0.6', '']        
@@ -113,7 +114,8 @@ def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y=0.8):
     if max_y*2 < 0.1:
         lim_y_min, lim_y_max = (-0.1, 0.1)
         labels = ['', '-0.08', '-0.06', '-0.04', '-0.02', '0.00', 
-              '0.02', '0.04', '0.06', '0.08', '']            
+              '0.02', '0.04', '0.06', '0.08', '']
+    """
     ax.tick_params(labelsize=20)
     ax.set_xlim(0,len(seq)+1)
     ax.set_ylim(lim_y_min,lim_y_max)
@@ -155,7 +157,7 @@ def _letterAt(letter, x, y, yscale=1, yerror=0, ax=None):
 def __reverse(seq):
     """ """
     alt_map = {'ins':'0'}
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'} 
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'M':'g', 'g':'M'} 
     for k,v in alt_map.items():
         seq = seq.replace(k,v)
     bases = list(seq) 

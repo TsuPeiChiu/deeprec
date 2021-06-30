@@ -1,12 +1,14 @@
 input:
-    train: ./atf4/data/r0_r1_atf4_selex_seq_10mer_50.onestrand.train.h5
-    val: ./atf4/data/r0_r1_atf4_selex_seq_10mer_50.onestrand.val.h5
-    test: ./atf4/data/r0_r1_atf4_selex_seq_10mer_50.onestrand.test.h5
+    train: ./atf4/data/GSE98652_ATF4_homo_hum_filtered_rel_affinity.onestrand.train.h5
+    val: ./atf4/data/GSE98652_ATF4_homo_hum_filtered_rel_affinity.onestrand.val.h5
+    test: ./atf4/data/GSE98652_ATF4_homo_hum_filtered_rel_affinity.onestrand.test.h5
 output:
-    path: ./atf4/output/
+    path: ./atf4/output/test/
     model_tune: model_tune.tsv
     model_logos: model_logos.png
+    model_logos_results: model_logos_results.tsv
     model_performances: model_performance.tsv
+    test_predictions: test_predictions.tsv
 optimizer: adam
 optimizer_params:
     lr: 0.001

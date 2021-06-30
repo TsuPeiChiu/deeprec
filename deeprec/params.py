@@ -22,7 +22,9 @@ class Params(object):
             self.output_path = c['output']['path']
             self.model_tune = c['output']['model_tune']
             self.model_logos = c['output']['model_logos']
+            self.model_logos_results = c['output']['model_logos_results']
             self.model_performances = c['output']['model_performances']
+            self.test_predictions = c['output']['test_predictions']  
             self.optimizer = c['optimizer']
             self.optimizer_params = {
                 'lr': float(c['optimizer_params']['lr'])
@@ -133,7 +135,9 @@ class Params(object):
         c['output'] = {'path': self.output_path,
                          'model_tune': self.model_tune, 
                          'model_logos': self.model_logos,
-                         'model_performances': self.model_performances}
+                         'model_logos_results': self.model_logos_results,
+                         'model_performances': self.model_performances,
+                         'test_predictions': self.test_predictions}
         c['optimizer'] = self.optimizer
         c['optimizer_params'] = {'lr': self.optimizer_params['lr']}
         c['loss'] = self.loss

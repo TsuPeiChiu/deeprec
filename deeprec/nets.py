@@ -96,5 +96,7 @@ def build_deeprec_model(params, seq_len=10, random_state=None):
 #    model.summary()
     model.compile(optimizer=op.Adam(lr=params.optimizer_params['lr']), 
                   loss=params.loss, metrics=[mt.r_squared])
+    
+    
     return model
     

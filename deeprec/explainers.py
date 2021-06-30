@@ -38,24 +38,25 @@ class DeepRecExplainer(object):
     
     def plot_logos(self):
         """"""
-        for self.x, self.seq in zip(self.xs, self.seqs):
-
-            self.samples, self.samples_name = self.__perturb()
-            self.ys = self.__predict()
-            results = self.__calculate_logos()        
-
-            logos_file = self.params.model_logos.replace('.png',
-                                                         '.'+self.seq+'.png')
-            
-            
-            outfile = os.path.join(self.params.output_path, logos_file)
-
-  
-            vi.plot_logos(outfile, self.seq, results)
-        
-        
-        
-        
+        test_predictions_file = os.path.join(self.params.output_path, 
+                                             self.params.test_predictions)
+        with open(test_predictions_file, 'w') as tpf:        
+            for self.x, self.seq in zip(self.xs, self.seqs):
+                self.samples, self.samples_name = self.__perturb()
+                self.ys = self.__predict()
+                model_logos_results_file = \
+                    self.params.model_logos_results.replace('.tsv','.'+ \
+                                                            self.seq+'.tsv')
+                model_logos_results_file = os.path.join(self.params.output_path, 
+                                             model_logos_results_file)
+                results = self.__calculate_logos(model_logos_results_file)
+                logos_file = self.params.model_logos.replace('.png',
+                                                        '.'+self.seq+'.png')
+                outfile = os.path.join(self.params.output_path, logos_file)  
+                vi.plot_logos(outfile, self.seq, results)
+                                
+                tpf.write(self.samples_name[0] + '\t' + 
+                          str(np.mean(self.ys[0])))        
         
     def __perturb(self):
         """"""
@@ -103,8 +104,7 @@ class DeepRecExplainer(object):
                             p_add[idx] = 1
                             p_add[idx_rev] = 1
                             samples.append(p_add)
-                            samples_name.append(s_add)
-#        print(samples_name)                              
+                            samples_name.append(s_add)                             
         return samples, samples_name
 
     def __predict(self):
@@ -115,7 +115,7 @@ class DeepRecExplainer(object):
             ys.append(y)
         return ys
 
-    def __calculate_logos(self):
+    def __calculate_logos(self, outfile):
         """"""
         results = pd.DataFrame(columns=self.results_column)         
         for s_pos in range(len(self.seq)):
@@ -164,8 +164,8 @@ class DeepRecExplainer(object):
                                     's_pos': s_pos, 
                                     'channel': self.channel_map[pc_type], 
                                     'delta': pc_mean,
-                                    'sem': pc_sem}, ignore_index=True)
-                                                                                                                                               
+                                    'sem': pc_sem}, ignore_index=True)                                                                                                                                                   
+        results.to_csv(outfile, sep='\t')
         return results
     
     def __calculate_diffs(self, key_ref, key_null):
