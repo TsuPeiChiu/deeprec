@@ -3,7 +3,7 @@ input:
     val: ./atf4/data/GSE98652_ATF4_homo_hum_filtered_rel_affinity.onestrand.val.h5
     test: ./atf4/data/GSE98652_ATF4_homo_hum_filtered_rel_affinity.onestrand.test.h5
 output:
-    path: ./atf4/output/test/
+    path: ./atf4/output/
     model_tune: model_tune.tsv
     model_logos: model_logos.png
     model_logos_results: model_logos_results.tsv
