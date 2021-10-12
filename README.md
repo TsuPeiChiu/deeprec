@@ -1,6 +1,8 @@
-# DeepRec (<u>Deep</u> <u>Rec</u>ognition for TF–DNA binding)
+# Protein-DNA recognition
 DNA-binding proteins selectively bind to their genomic binding sites and trigger various cellular processes. This selective binding occurs when the DNA-binding domain of the protein recognizes its binding site by reading physicochemical signatures on the base-pair edges.
 ![alt text](https://github.com/TsuPeiChiu/deeprec/blob/main/deeprec/imgs/figure1.jpg)
+
+# DeepRec (<u>Deep</u> <u>Rec</u>ognition for TF–DNA binding)
 DeepRec is a deep-learning-based method that integrates two CNN modules for extracting important physicochemical signatures in the major and minor grooves of DNA. Each CNN module extracts nonlinear spatial information between functional groups in DNA base pairs to mine potential insights beyond DNA sequence.
 ![alt text](https://github.com/TsuPeiChiu/deeprec/blob/main/deeprec/imgs/figure2.jpg)
 
