@@ -1,7 +1,7 @@
 # DeepRec (Deep Recognition for TF–DNA binding)
 DeepRec is a deep-learning-based method that integrates two CNN modules for extracting important physicochemical signatures in the major and minor grooves of DNA. Each CNN module extracts nonlinear spatial information between functional groups in DNA base pairs to mine potential insights beyond DNA sequence.
 
-![alt text](https://github.com/TsuPeiChiu/deeprec/tree/main/deeprec/imgs/figure1.tif)
+![alt text](https://github.com/TsuPeiChiu/deeprec/tree/main/deeprec/imgs/figure1.jpg)
 
 # deeprec running command
 ./tests/deeprec_run.py -c ./max/config/config.yaml -t ./max/config/tune_params.yaml -p 3 -s 0 -e 10 -q 0.5 -d ./max/data/test_seq.txt -i ./max/data/r0_r1_max_selex_seq_10mer_150.txt -v 0.1
