@@ -11,10 +11,10 @@ DeepRec is a deep-learning-based method that integrates two CNN modules for extr
 ![alt text](https://github.com/TsuPeiChiu/deeprec/blob/main/deeprec/imgs/figure2.jpg)
 
 
-# deeprec running command
+# Commands to run DeepRec
 ./tests/deeprec_run.py -c ./max/config/config.yaml -t ./max/config/tune_params.yaml -p 3 -s 0 -e 10 -q 0.5 -d ./max/data/test_seq.txt -i ./max/data/r0_r1_max_selex_seq_10mer_150.txt -v 0.1
 
-# Parameters 
+## Parameters 
 -c: Config for training a model
 
 -t: Config for hyperparameter search
@@ -33,7 +33,7 @@ DeepRec is a deep-learning-based method that integrates two CNN modules for extr
 
 -d: Target sequence for interpretation
 
-# Systems tested
+## Systems tested
 - max (ACCACGTGGT)
 
 python ./deeprec_run.py -c ./max/config/config.yaml -t ./max/config/tune_params.yaml -p 100 -s 0 -e 100 -q 0.5 -d ./max/data/test_seq.txt -i ./max/data/r0_r1_max_selex_seq_10mer_150.txt -v 0.1
