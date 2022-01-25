@@ -39,10 +39,6 @@ dispaly_map = {
 }
     
     
-    
-    
-    
-    
 results_column = ['seq', 'type', 'h_pos',
                        's_pos', 'channel', 'delta', 'sem']
 seq_letters = ['A','C','G','T', 'M', 'g']
@@ -66,4 +62,3 @@ def generate_names_1d(seq_len):
                     name = str(l)
                     names.append(name+"_m_"+str(k)+"_"+i)
     return names 
-                     

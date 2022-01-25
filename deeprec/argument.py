@@ -23,6 +23,8 @@ class ArgumentReader(object):
                         help='Target sequence for interpretation')
         p.add_argument('-f', action='store', type=int, dest='shuffle', 
                        default=0, help='Flag for shuffling y')
+        p.add_argument('-m', action='store', dest='mode', 
+                        help='Mode for running specific functions')
         
         args = p.parse_args()         
         self.config = args.config
@@ -35,3 +37,4 @@ class ArgumentReader(object):
         self.valid_size = args.valid_size
         self.target_seq = args.target_seq        
         self.shuffle=True if args.shuffle==1 else False 
+        self.mode = args.mode

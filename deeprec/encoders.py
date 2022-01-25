@@ -20,7 +20,8 @@ class Encoders(object):
         seqs, resps = [], []    
         with open(infile) as f:
             for line in f:
-                items = line.strip().upper().split(sep)
+#                items = line.strip().upper().split(sep)
+                items = line.strip().split(sep)
                 seq, resp = items[0], items[1]
                 seq = seq + self.__revcompl(seq)
                 seqs.append(seq)
@@ -28,11 +29,19 @@ class Encoders(object):
         seqs_test, resps_test = [], []
         with open(testfile) as f:
             for line in f:
-                seq = line.strip().upper()
-                seq_len = len(seq)
-                seq = seq + self.__revcompl(seq)
-                seqs_test.append(seq)
-                resps_test.append(0)               
+                items = line.strip().split(sep)
+                if len(items)>1:
+                    seq, resp = items[0], items[1]                    
+                    seq = seq + self.__revcompl(seq)
+                    seqs_test.append(seq)
+                    resps_test.append(resp)
+                else:
+                    seq = items[0]
+                    seq = seq + self.__revcompl(seq)
+                    seqs_test.append(seq)
+                    resps_test.append(0)
+        seq_len = len(seqs[0])/2     
+                          
         seqs_train, seqs_val, resps_train, resps_val = train_test_split(
                 seqs, resps, test_size=test_size, random_state=random_state)      
         encode_seqs = {'train': seqs_train, 'val': seqs_val, 'test': seqs_test}

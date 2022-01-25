@@ -1,0 +1,48 @@
+input:
+    train: ./cebpb/data/r0_r1_cebpb_selex_seq_10mer_50.onestrand.train.h5
+    val: ./cebpb/data/r0_r1_cebpb_selex_seq_10mer_50.onestrand.val.h5
+    test: ./cebpb/data/r0_r1_cebpb_selex_seq_10mer_50.onestrand.test.h5
+output:
+    path: ./cebpb/output/2_2/0.00005/
+    model_tune: model_tune.tsv
+    model_logos: model_logos.png
+    model_logos_results: model_logos_results.tsv
+    model_performances: model_performance.tsv
+    test_predictions: test_predictions.tsv
+optimizer: adam
+optimizer_params:
+    lr: 0.001
+loss: poisson
+nb_epoch: 100
+batch_size: 256
+cartridges:
+    hbond_major:
+        nb_filter: 16
+        filter_len: 3
+        filter_hei: 3
+        pool_len: 1
+        pool_hei: 1
+        activation: relu
+        l1: 0.00005
+        l2: 0
+        nb_hidden: 32
+        
+    hbond_minor:
+        nb_filter: 16
+        filter_len: 3
+        filter_hei: 3
+        pool_len: 1
+        pool_hei: 1
+        activation: relu
+        l1: 0.00005
+        l2: 0
+        nb_hidden: 32
+joint:
+    nb_hidden: 128
+    activation: relu
+    l1: 0
+    l2: 0
+    drop_out: 0.01    
+target:
+    activation: sigmoid
+    

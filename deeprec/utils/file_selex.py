@@ -1,5 +1,5 @@
 import pandas as pd
-import deeprec.models as dm
+#import deeprec.models as dm
 
 def remove_redundancy(input_selex):
     """ """
@@ -20,7 +20,7 @@ def remove_redundancy(input_selex):
 
 def reverse_compl(seq):
     alt_map = {'ins':'0'}
-    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
+    complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'M':'g', 'g':'M'}
 
     for k,v in alt_map.items():
         seq = seq.replace(k,v)

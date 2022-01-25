@@ -119,16 +119,8 @@ class DeepRecModel(object):
                                      shuffle='batch',
                                      verbose=verbose,
                                      batch_size=self.params.batch_size, 
-                                     callbacks=[callback_early_stopping,
-                                     cb.LearningRateScheduler(lr_exp_decay)])
-#            outfile = os.path.join(self.params.output_path, 
-#                                   self.params.model_whole)
-                        
-#            if self.random_state is not None:
-#                outfile = '.'.join([outfile.replace('.h5',''), 
-#                                    str(self.random_state), 'h5'])
-#            self.save(outfile)
-                        
+                                     callbacks=[callback_early_stopping])
+#                                     cb.LearningRateScheduler(lr_exp_decay)])
             if verbose==True:
                 self.__plot(history)
             
@@ -204,9 +196,9 @@ class DeepRecModel(object):
         train_file, train_data = fut.read_hdf(self.params.train, 1024)        
         train_x_major = np.array(train_data['hbond_major_x']) 
         train_x_minor = np.array(train_data['hbond_minor_x'])      
-        train_x_con = np.concatenate([train_x_major, train_x_minor], axis=2)
-
-        patch_len = self.params.hbond_major['filter_len']
+        train_x_con = np.concatenate([train_x_major, train_x_minor], axis=2)     
+#        patch_len = self.params.hbond_major['filter_len']
+        patch_len = 10
         patch_col = np.zeros(train_x_con.shape[0]*
                              train_x_con.shape[1]*
                              train_x_con.shape[2]*
@@ -233,7 +225,8 @@ class DeepRecModel(object):
         val_x_major = np.array(val_data['hbond_major_x'])
         val_x_minor = np.array(val_data['hbond_minor_x'])
         val_x_con = np.concatenate([val_x_major, val_x_minor], axis=2)
-        patch_len = self.params.hbond_minor['filter_len']
+#        patch_len = self.params.hbond_minor['filter_len']
+        patch_len = 10
         patch_col = np.zeros(val_x_con.shape[0]*
                              val_x_con.shape[1]*
                              val_x_con.shape[2]*
@@ -259,7 +252,8 @@ class DeepRecModel(object):
         test_x_major = np.array(test_data['hbond_major_x'])
         test_x_minor = np.array(test_data['hbond_minor_x'])
         test_x_con = np.concatenate([test_x_major, test_x_minor], axis=2)
-        patch_len = self.params.hbond_minor['filter_len']
+#        patch_len = self.params.hbond_minor['filter_len']
+        patch_len = 10
         patch_col = np.zeros(test_x_con.shape[0]*
                              test_x_con.shape[1]*
                              test_x_con.shape[2]*

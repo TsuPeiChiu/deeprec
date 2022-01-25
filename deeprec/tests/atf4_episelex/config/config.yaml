@@ -1,0 +1,48 @@
+input:
+    train: ./atf4_episelex/data/r0_r1_atf4_episelex_seq_10mer_75_U_M_nor.onestrand.train.h5
+    val: ./atf4_episelex/data/r0_r1_atf4_episelex_seq_10mer_75_U_M_nor.onestrand.val.h5
+    test: ./atf4_episelex/data/r0_r1_atf4_episelex_seq_10mer_75_U_M_nor.onestrand.test.h5
+output:
+    path: ./atf4_episelex/output/2_2/0.00003/
+    model_tune: model_tune.tsv
+    model_logos: model_logos.png
+    model_logos_results: model_logos_results.tsv
+    model_performances: model_performance.tsv
+    test_predictions: test_predictions.tsv
+optimizer: adam
+optimizer_params:
+    lr: 0.001
+loss: poisson
+nb_epoch: 100
+batch_size: 256
+cartridges:
+    hbond_major:
+        nb_filter: 16
+        filter_len: 2
+        filter_hei: 2
+        pool_len: 1
+        pool_hei: 1
+        activation: relu
+        l1: 0.00003
+        l2: 0
+        nb_hidden: 32
+        
+    hbond_minor:
+        nb_filter: 16
+        filter_len: 2
+        filter_hei: 2
+        pool_len: 1
+        pool_hei: 1
+        activation: relu
+        l1: 0.00003
+        l2: 0
+        nb_hidden: 32
+joint:
+    nb_hidden: 128
+    activation: relu
+    l1: 0
+    l2: 0
+    drop_out: 0.01    
+target:
+    activation: sigmoid
+    

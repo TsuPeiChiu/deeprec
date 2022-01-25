@@ -3,9 +3,12 @@ import numpy as np
 import random as ra
 import pandas as pd
 import math as ma
+import keras
+import tensorflow as tf
 import deeprec.names as na
 import deeprec.params as pr
 import deeprec.visualizers as vi
+import deeprec.metrics as me
 import lime.lime_tabular
 #from sklearn import linear_model
 
@@ -38,6 +41,11 @@ class DeepRecExplainer(object):
     
     def plot_logos(self):
         """"""
+        if len(self.seqs)>50:
+            print ('too many testing sequences:' + str(self.seq_len) + 
+                   'for plotting')
+            exit()
+            
         test_predictions_file = os.path.join(self.params.output_path, 
                                              self.params.test_predictions)
         with open(test_predictions_file, 'w') as tpf:        
@@ -56,7 +64,7 @@ class DeepRecExplainer(object):
                 vi.plot_logos(outfile, self.seq, results)
                                 
                 tpf.write(self.samples_name[0] + '\t' + 
-                          str(np.mean(self.ys[0])))        
+                          str(np.mean(self.ys[0])) + '\n')        
         
     def __perturb(self):
         """"""

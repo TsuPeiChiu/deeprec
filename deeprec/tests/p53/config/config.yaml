@@ -3,7 +3,8 @@ input:
     val: ./p53/data/r0_r1_p53_selex_seq_10mer_300.onestrand.val.h5
     test: ./p53/data/r0_r1_p53_selex_seq_10mer_300.onestrand.test.h5
 output:
-    path: ./p53/output/
+    path: ./p53/output/0/
+    model_selected: model_selected.tsv
     model_tune: model_tune.tsv
     model_logos: model_logos.png
     model_logos_results: model_logos_results.tsv
@@ -17,26 +18,23 @@ nb_epoch: 100
 batch_size: 256
 cartridges:
     hbond_major:
-        nb_filter: 16
-        filter_len: 4
-        filter_hei: 2
-        pool_len: 1
-        pool_hei: 1
-        activation: relu
-        l1: 0.0001
-        l2: 0
-        nb_hidden: 32
-        
+        nb_filter: [16,16]
+        filter_len: [2,6]
+        filter_hei: [2,4]
+        pool_len: [1,1]
+        pool_hei: [1,1]
+        activation: [relu,relu]
+        l1: [3.0e-06,3.0e-06]
+        l2: [0,0]        
     hbond_minor:
-        nb_filter: 16
-        filter_len: 4
-        filter_hei: 2
-        pool_len: 1
-        pool_hei: 1
-        activation: relu
-        l1: 0.0001
-        l2: 0
-        nb_hidden: 32
+        nb_filter: [16,16]
+        filter_len: [2,6]
+        filter_hei: [2,3]
+        pool_len: [1,1]
+        pool_hei: [1,1]
+        activation: [relu,relu]
+        l1: [3.0e-06,3.0e-06]
+        l2: [0,0]
 joint:
     nb_hidden: 128
     activation: relu
