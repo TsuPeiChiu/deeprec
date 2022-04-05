@@ -3,7 +3,7 @@ input:
     val: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.val.h5
     test: ./max/data/r0_r1_max_selex_seq_10mer_150.onestrand.test.h5
 output:
-    path: ./max/output/0/
+    path: ./max/output/test/
     model_selected: model_selected.tsv
     model_tune: model_tune.tsv
     model_logos: model_logos.png
@@ -13,7 +13,7 @@ output:
 optimizer: adam
 optimizer_params:
     lr: 0.001
-loss: poisson
+loss: mse
 nb_epoch: 100
 batch_size: 128
 cartridges:
@@ -24,7 +24,7 @@ cartridges:
         pool_len: [1,1]
         pool_hei: [1,1]
         activation: [relu,relu]
-        l1: [0.00001,0]
+        l1: [0.000001,0]
         l2: [0,0]        
     hbond_minor:
         nb_filter: [16,16]
@@ -33,7 +33,7 @@ cartridges:
         pool_len: [1,1]
         pool_hei: [1,1]
         activation: [relu,relu]
-        l1: [0.00001,0]
+        l1: [0.000001,0]
         l2: [0,0]
 joint:
     nb_hidden: 64

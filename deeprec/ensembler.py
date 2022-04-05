@@ -69,6 +69,9 @@ class DeepRecEmsembler(object):
                 if is_shuffle==True:                    
                     np.random.shuffle(self.train_y)
                     np.random.shuffle(self.val_y)
+                    
+                    #np.random.shuffle(np.transpose(self.train_x))
+                    #np.random.shuffle(np.transpose(self.val_x))
                 
             else:
                 input_data={'train_x':self.train_x,

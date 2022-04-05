@@ -3,7 +3,7 @@ input:
     val: ./max_smile/data/r0_r1_max_smile_seq_10mer_50.onestrand.val.h5
     test: ./max_smile/data/r0_r1_max_smile_seq_10mer_50.onestrand.test.h5
 output:
-    path: ./max_smile/output/0/
+    path: ./max_smile/output/test/
     model_selected: model_selected.tsv
     model_tune: model_tune.tsv
     model_logos: model_logos.png
@@ -13,7 +13,7 @@ output:
 optimizer: adam
 optimizer_params:
     lr: 0.001
-loss: poisson
+loss: mse
 nb_epoch: 100
 batch_size: 256
 cartridges:
@@ -24,7 +24,7 @@ cartridges:
         pool_len: [1,1]
         pool_hei: [1,1]
         activation: [relu,relu]
-        l1: [1.0e-05,1.0e-05]
+        l1: [1.0e-06,1.0e-06]
         l2: [0,0]        
     hbond_minor:
         nb_filter: [16,16]
@@ -33,7 +33,7 @@ cartridges:
         pool_len: [1,1]
         pool_hei: [1,1]
         activation: [relu,relu]
-        l1: [1.0e-05,1.0e-05]
+        l1: [1.0e-06,1.0e-06]
         l2: [0,0]
 joint:
     nb_hidden: 128

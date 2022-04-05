@@ -3,7 +3,7 @@ input:
     val: ./mef2b/data/r0_r1_mef2b_selex_seq_10mer_100.onestrand.val.h5
     test: ./mef2b/data/r0_r1_mef2b_selex_seq_10mer_100.onestrand.test.h5
 output:
-    path: ./mef2b/output/0/
+    path: ./mef2b/output/test/
     model_selected: model_selected.tsv
     model_tune: model_tune.tsv
     model_logos: model_logos.png
@@ -13,7 +13,7 @@ output:
 optimizer: adam
 optimizer_params:
     lr: 0.001
-loss: poisson
+loss: mse
 nb_epoch: 100
 batch_size: 128
 cartridges:

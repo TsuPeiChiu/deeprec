@@ -14,7 +14,7 @@ import lime.lime_tabular
 
 class DeepRecExplainer(object):
     """"""
-    def __init__(self, config, models, xs, seqs, random_state=None):        
+    def __init__(self, config, models, xs, seqs, random_state=None, y_lim=1.0):        
         """"""
         if random_state != None:
             os.environ['PYTHONHASHSEED'] = str(random_state)
@@ -38,6 +38,7 @@ class DeepRecExplainer(object):
         self.seq_letters_rev = na.seq_letters_rev
         self.pc_letters = na.pc_letters
         self.groove_map = na.groove_map
+        self.y_lim = y_lim
     
     def plot_logos(self):
         """"""
@@ -61,7 +62,7 @@ class DeepRecExplainer(object):
                 logos_file = self.params.model_logos.replace('.png',
                                                         '.'+self.seq+'.png')
                 outfile = os.path.join(self.params.output_path, logos_file)  
-                vi.plot_logos(outfile, self.seq, results)
+                vi.plot_logos(outfile, self.seq, results, self.y_lim)
                                 
                 tpf.write(self.samples_name[0] + '\t' + 
                           str(np.mean(self.ys[0])) + '\n')        
@@ -153,8 +154,13 @@ class DeepRecExplainer(object):
                                 key_ref = '_'.join([self.seq, 
                                                      str(s_pos+1),
                                                      self.groove_names[g_type],
-                                                     str(h_pos+1), 'null',
-                                                     pc_type])
+                                                     str(h_pos+1), 'null'])
+#                                key_ref = '_'.join([self.seq, 
+#                                                     str(s_pos+1),
+#                                                     self.groove_names[g_type],
+#                                                     str(h_pos+1), 'null',
+#                                                     pc_type])
+    
                                 key_null = '_'.join([self.seq, 
                                                     str(s_pos+1),
                                                     self.groove_names[g_type],

@@ -25,6 +25,8 @@ class ArgumentReader(object):
                        default=0, help='Flag for shuffling y')
         p.add_argument('-m', action='store', dest='mode', 
                         help='Mode for running specific functions')
+        p.add_argument('-y', action='store', type=float, dest='y_lim',
+                        help='Y-axis limits for the plot')
         
         args = p.parse_args()         
         self.config = args.config
@@ -38,3 +40,4 @@ class ArgumentReader(object):
         self.target_seq = args.target_seq        
         self.shuffle=True if args.shuffle==1 else False 
         self.mode = args.mode
+        self.y_lim = args.y_lim

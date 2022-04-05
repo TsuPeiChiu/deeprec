@@ -13,7 +13,7 @@ from matplotlib.patches import PathPatch
 from matplotlib.font_manager import FontProperties
 from PIL import Image
 
-def plot_logos(outfile, seq, results): 
+def plot_logos(outfile, seq, results, y_lim=1.0): 
     """
     The format of results is ['seq', 'type', 'h_pos', 's_pos', 
                              'channel', 'delta', 'sem'])
@@ -25,10 +25,12 @@ def plot_logos(outfile, seq, results):
     max_y = results['delta'].astype(float).abs().max()
     max_y = max_y*1.2    
     for i in np.arange(4): # major
-        __plot_details(results, seq_idx, seq, 'major', i, ax[i,0], seq, max_y)
+        __plot_details(results, seq_idx, seq, 'major', i, ax[i,0], seq, 
+                       max_y, y_lim)
             
     for i in np.arange(3): # minor
-        __plot_details(results, seq_idx, seq, 'minor', i, ax[i,1], seq, max_y)            
+        __plot_details(results, seq_idx, seq, 'minor', i, ax[i,1], seq, 
+                       max_y, y_lim)            
     x = []
     y = []
     ax[3,1].scatter(x,y)
@@ -71,7 +73,7 @@ def plot_logos(outfile, seq, results):
     os.rename(outfile+".overlay.png", outfile)
     print("model logos: " + outfile)
         
-def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y=0.8):
+def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y, y_lim):
     """ """
     idx_h_pos = df['h_pos'] == h_pos
     idx_side = df['type'] == side    
@@ -95,9 +97,16 @@ def __plot_details(df, seq_idx, seq, side, h_pos, ax, base, max_y=0.8):
             elif tmp.iloc[j]['channel'] == '[1, 0, 0, 0]': channel = 'N'         
             _letterAt(channel, x, y, abs(score), score_sd, ax)
             y += abs(score)
-    lim_y_min, lim_y_max = (-1.0, 1.0)
-    labels = ['', '-0.8', '-0.6', '-0.4', '-0.2', '0.0', 
-              '0.2', '0.4', '0.6', '0.8', '']    
+    
+    lim_y_min, lim_y_max = (-1*y_lim, y_lim)
+    values = range(int(lim_y_min*10), int(lim_y_max*10), 2)
+    labels = [str(round(float(v)/10,2)) for v in values]    
+    labels[0] = ''
+    labels.append('')
+
+#    lim_y_min, lim_y_max = (-1.0, 1.0)
+#    labels = ['', '-0.8', '-0.6', '-0.4', '-0.2', '0.0', 
+#              '0.2', '0.4', '0.6', '0.8', '']    
     
 #    if max_y*1.5 < 0.8:
 #        lim_y_min, lim_y_max = (-0.8, 0.8)
