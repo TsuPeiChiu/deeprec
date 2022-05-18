@@ -3,14 +3,9 @@ import numpy as np
 import random as ra
 import pandas as pd
 import math as ma
-import keras
-import tensorflow as tf
 import deeprec.names as na
 import deeprec.params as pr
 import deeprec.visualizers as vi
-import deeprec.metrics as me
-import lime.lime_tabular
-#from sklearn import linear_model
 
 class DeepRecExplainer(object):
     """"""
@@ -217,89 +212,3 @@ class DeepRecExplainer(object):
         pc_sem = np.sqrt(np.sum(np.square(diffs_sems)))
         return pc_mean, pc_sem
             
-    
-
-    
-
-
-        
-class DeepRecLimeExplainer(object):
-    """ """            
-    def __init__(self, models, x, seq, nb_features, nb_samples, seed=0):
-        """ """
-        self.models = models
-        self.x = x
-        self.seq = seq
-        self.seq_len = int(len(self.x)/28) # with padding
-        self.names_1d = na.generate_names_1d(self.seq_len)
-        self.results_column = na.results_column
-        self.groove_map = na.groove_map
-        self.groove_names = na.groove_names
-        self.channel_map = na.channel_map
-        self.lime_outputs = []
-                
-        for model in models:
-            explainer = lime.lime_tabular.LimeTabularExplainer(model.train_x,
-                                                               verbose=True,
-                                                               mode='regression',
-                                                               feature_names=self.names_1d,
-                                                               categorical_features=list(range(len(self.x))),
-                                                               feature_selection='lasso_path',
-                                                               random_state=seed)                        
-            ins = explainer.explain_instance(x, 
-                                             model.predict, 
-                                             num_features=nb_features, 
-                                             num_samples=nb_samples, 
-                                             model_regressor=None, 
-                                             sampling_method='deeprec',
-                                             seq_len=len(self.seq), 
-                                             max_mutations=2)                        
-            items = ins.as_map()[1]
-            result = {}
-            for item in items:
-                result[item[0]] = item[1]           
-            self.lime_outputs.append(result) 
-
-            print('r-squared:' + str(ins.score[0]))
-                            
-    def plot_logos(self):
-        """"""
-        results = pd.DataFrame(columns=self.results_column)
-                
-        for s_pos in range(len(self.seq)):
-            for g_type, nb_pos in self.groove_map.items():
-                for h_pos in range(nb_pos):
-                    for pc_type, pc_code in self.channel_map.items():
-                        key = '_'.join([str(s_pos+1),self.groove_names[g_type],str(h_pos+1), pc_type])
-                        key_rev = '_'.join([str(self.seq_len-s_pos),
-                                            self.groove_names[g_type],
-                                            str(nb_pos-h_pos), 
-                                            pc_type])                        
-                        idx = self.names_1d.index(key)
-                        idx_rev = self.names_1d.index(key_rev)                        
-                        value, value_rev = 0, 0
-                        if idx in self.lime_outputs[0]:
-                            value = float(self.lime_outputs[0][idx])                            
-                        if idx_rev in self.lime_outputs[0]:
-                            value_rev = float(self.lime_outputs[0][idx_rev])
-                            
-                        score = np.mean([value, value_rev])
-                        
-                        channel_map = {
-                        'A': '[0, 0, 0, 1]', 
-                        'D': '[0, 0, 1, 0]',
-                        'M': '[0, 1, 0, 0]',
-                        'N': '[1, 0, 0, 0]'
-                        }
-                        channel = channel_map[pc_type]
-                        sem = 0
-                        
-                        results = results.append({'seq': self.seq,
-                                      'type': g_type, 
-                                      'h_pos': h_pos, 
-                                      's_pos': s_pos, 
-                                      'channel': channel, 
-                                      'delta': score,
-                                      'sem': sem}, ignore_index=True)
-                        
-        vi.plot_logos(self.seq, results)
